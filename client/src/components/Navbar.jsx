@@ -1,8 +1,9 @@
 import { FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
-
+import { useSelector } from 'react-redux'
 
 const Navbar = () => {
+    const { currentUser } = useSelector(state => state.user)
 
     return (
         <header>
@@ -30,18 +31,32 @@ const Navbar = () => {
                     <Link to="/about">
                         <li className="text-base font-semibold hidden sm:inline">About</li>
                     </Link>
-                    <Link to="/signup">
-                        <li>
-                            <button
-                                className="btn btn-sm btn-primary text-white"
-                            >
-                                Register
-                            </button>
-                        </li>
-                    </Link>
-                    <li>
-                        <button className="btn btn-sm  btn-primary text-white">Login</button>
-                    </li>
+                    {currentUser ? (
+                        <Link to="/profile">
+                            <div className="avatar flex items-center">
+                                <div className="w-8 rounded-full">
+                                    <img src={currentUser.avatar} alt="profileImage" />
+                                </div>
+                            </div>
+                        </Link>
+                    ) : (
+                        <div>
+                            <Link to="/sign-up">
+                                <li>
+                                    <button
+                                        className="btn btn-sm btn-primary text-white"
+                                    >
+                                        Register
+                                    </button>
+                                </li>
+                            </Link>
+                            <Link to="/sign-in">
+                                <li>
+                                    <button className="btn btn-sm  btn-primary text-white">Login</button>
+                                </li>
+                            </Link>
+                        </div>
+                    )}
                 </ul>
             </div>
         </header>
