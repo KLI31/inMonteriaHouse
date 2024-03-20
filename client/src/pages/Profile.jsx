@@ -18,30 +18,32 @@ import {
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import toast, { Toaster } from 'react-hot-toast';
+import { SimpleFeatureButton } from "../components/CustomButton";
+import { FiEdit, FiLogOut } from "react-icons/fi";
+import { MdOutlineDeleteOutline, MdOutlineAddCircleOutline, MdDeleteForever } from "react-icons/md";
+import { GoArrowUpRight } from "react-icons/go";
+import { BsFillGridFill } from "react-icons/bs";
+
 
 export default function Profile() {
     const fileRef = useRef(null);
     const { currentUser, loading, error } = useSelector((state) => state.user);
     const [file, setFile] = useState(undefined);
     const [filePerc, setFilePerc] = useState(0);
-    const [fileUploadError, setFileUploadError] = useState(false);
     const [formData, setFormData] = useState({});
-    const [updateSuccess, setUpdateSuccess] = useState(false);
     const [showListingsError, setShowListingsError] = useState(false);
     const [userListings, setUserListings] = useState([]);
+
     const dispatch = useDispatch();
 
-    // firebase storage
-    // allow read;
-    // allow write: if
-    // request.resource.size < 2 * 1024 * 1024 &&
-    // request.resource.contentType.matches('image/.*')
 
     useEffect(() => {
         if (file) {
             handleFileUpload(file);
         }
     }, [file]);
+
 
     const handleFileUpload = (file) => {
         const storage = getStorage(app);
@@ -52,17 +54,17 @@ export default function Profile() {
         uploadTask.on(
             "state_changed",
             (snapshot) => {
-                const progress =
-                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 setFilePerc(Math.round(progress));
-            },
-            (error) => {
-                setFileUploadError(true);
+                toast.loading(`Uploading ${Math.round(progress)}%`, { duration: 1000 });
             },
             () => {
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
-                    setFormData({ ...formData, avatar: downloadURL })
-                );
+                toast.error("Error al cargar la imagen debe ser por lo menos 2mb");
+            },
+            () => {
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                    setFormData((prevFormData) => ({ ...prevFormData, avatar: downloadURL }));
+                });
             }
         );
     };
@@ -87,9 +89,8 @@ export default function Profile() {
                 dispatch(updateUserFailure(data.message));
                 return;
             }
-
             dispatch(updateUserSuccess(data));
-            setUpdateSuccess(true);
+            toast.success('Perfil actualizado correctamente');
         } catch (error) {
             dispatch(updateUserFailure(error.message));
         }
@@ -137,6 +138,11 @@ export default function Profile() {
                 return;
             }
 
+            if (data.length === 0) {
+                toast.error('No hay publicaciones disponibles.');
+                return;
+            }
+
             setUserListings(data);
         } catch (error) {
             setShowListingsError(true);
@@ -150,58 +156,54 @@ export default function Profile() {
             });
             const data = await res.json();
             if (data.success === false) {
-                console.log(data.message);
-                return;
+                return toast.error("Hubo algun error, intenta de nuevo");
             }
 
             setUserListings((prev) =>
                 prev.filter((listing) => listing._id !== listingId)
             );
+            toast.success("Oferta eliminada Corrrectamente!");
         } catch (error) {
             console.log(error.message);
         }
     };
+
+
     return (
         <div className="p-3 max-w-lg mx-auto">
+            <Toaster />
             <h1 className="text-4xl font-bold text-center my-7">Mi Perfil</h1>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <input
-                    onChange={(e) => setFile(e.target.files[0])}
-                    type="file"
-                    ref={fileRef}
-                    hidden
-                    accept="image/*"
-                />
-                <img
-                    onClick={() => fileRef.current.click()}
-                    src={formData.avatar || currentUser.avatar}
-                    alt="profile"
-                    className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
-                />
-                <p className="text-sm self-center">
-                    {fileUploadError ? (
-                        <span className="text-red-700">
-                            Error Image upload (image must be less than 2 mb)
-                        </span>
-                    ) : filePerc > 0 && filePerc < 100 ? (
-                        <span className="text-slate-700">{`Uploading ${filePerc}%`}</span>
-                    ) : filePerc === 100 ? (
-                        <span className="text-green-700">Image successfully uploaded!</span>
-                    ) : (
-                        ""
-                    )}
-                </p>
+                <div className="flex flex-col items-center gap-5 justify-around">
+                    <img
+                        src={formData.avatar || currentUser.avatar}
+                        alt="profile"
+                        className="rounded-full h-24 w-24 object-cover mt-2"
+                    />
+                    <div className="flex gap-1 items-center">
+                        <h1 className="font-semibold text-xl">Bienvenido</h1>
+                        <h2 className="font-semibold text-xl">{currentUser.username}</h2>
+                        <input
+                            onChange={(e) => setFile(e.target.files[0])}
+                            type="file"
+                            ref={fileRef}
+                            hidden
+                            accept="image/*"
+                        />
+                    </div>
+                    <SimpleFeatureButton onClick={() => fileRef.current.click()} text="Cambiar imagen" color="bg-secondary" />
+                </div>
                 <input
                     type="text"
-                    placeholder="username"
-                    defaultValue={currentUser.username}
+                    placeholder="Nombre de usuario"
                     id="username"
                     className="border p-3 rounded-lg"
+                    defaultValue={currentUser.username}
                     onChange={handleChange}
                 />
                 <input
                     type="email"
-                    placeholder="email"
+                    placeholder="Correo electronico"
                     id="email"
                     defaultValue={currentUser.email}
                     className="border p-3 rounded-lg"
@@ -209,80 +211,85 @@ export default function Profile() {
                 />
                 <input
                     type="password"
-                    placeholder="password"
+                    placeholder="Contraseña"
                     onChange={handleChange}
                     id="password"
                     className="border p-3 rounded-lg"
                 />
                 <button
                     disabled={loading}
-                    className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80"
+                    className="btn btn-warning text-white p-4 uppercase hover:opacity-95 disabled:opacity-80"
                 >
-                    {loading ? "Cargando..." : "Actualizar"}
+                    {loading ? "Cargando..." : "Actualizar perfil"}
                 </button>
-                <Link
-                    className="bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95"
-                    to={"/create-listing"}
-                >
-                    Crear Oferta
-                </Link>
+                <div className="flex items-center justify-center">
+                    <Link
+                        to={"/create-listing"}
+                    >
+                        <SimpleFeatureButton
+                            text="Crear Publicación"
+                            color="bg-success"
+                            IconComponent={MdOutlineAddCircleOutline}
+                        />
+                    </Link>
+                </div>
             </form>
             <div className="flex justify-between mt-5">
-                <span
+                <SimpleFeatureButton
+                    text="Borrar tu cuenta"
+                    color="bg-error"
                     onClick={handleDeleteUser}
-                    className="text-red-700 cursor-pointer"
-                >
-                    Delete account
-                </span>
-                <span onClick={handleSignOut} className="text-red-700 cursor-pointer">
-                    Sign out
-                </span>
+                    IconComponent={MdDeleteForever}
+                />
+                <SimpleFeatureButton
+                    text="Cerrar sesión"
+                    color="bg-secondary"
+                    onClick={handleSignOut}
+                    IconComponent={FiLogOut}
+                />
             </div>
 
             <p className="text-red-700 mt-5">{error ? error : ""}</p>
-            <p className="text-green-700 mt-5">
-                {updateSuccess ? "User is updated successfully!" : ""}
-            </p>
-            <button onClick={handleShowListings} className="text-green-700 w-full">
-                Show Listings
-            </button>
+            <div className="flex items-center justify-center">
+                <SimpleFeatureButton
+                    text="Mostrar tus publicaciones"
+                    color="bg-primary"
+                    onClick={handleShowListings}
+                    IconComponent={BsFillGridFill}
+                />
+            </div>
             <p className="text-red-700 mt-5">
-                {showListingsError ? "Error showing listings" : ""}
+                {showListingsError ? "Error al mostrar tus publicaciones" : ""}
             </p>
 
             {userListings && userListings.length > 0 && (
                 <div className="flex flex-col gap-4">
                     <h1 className="text-center mt-7 text-2xl font-semibold">
-                        Your Listings
+                        Tus publicaciones
                     </h1>
                     {userListings.map((listing) => (
                         <div
                             key={listing._id}
-                            className="border rounded-lg p-3 flex justify-between items-center gap-4"
+                            className="border rounded-lg p-4 flex flex-wrap justify-center items-center gap-4"
                         >
-                            <Link to={`/listing/${listing._id}`}>
-                                <img
-                                    src={listing.imageUrls[0]}
-                                    alt="listing cover"
-                                    className="h-16 w-16 object-contain"
-                                />
-                            </Link>
-                            <Link
-                                className="text-slate-700 font-semibold  hover:underline truncate flex-1"
-                                to={`/listing/${listing._id}`}
-                            >
-                                <p>{listing.name}</p>
-                            </Link>
-
-                            <div className="flex flex-col item-center">
-                                <button
+                            <img
+                                src={listing.imageUrls[0]}
+                                alt="listing cover"
+                                className="h-30 w-30 object-contain"
+                            />
+                            <p className="font-semibold text-xl">Título - {listing.name}</p>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <Link to={`/listing/${listing._id}`}>
+                                    <SimpleFeatureButton text="Ver publicación" IconComponent={GoArrowUpRight} color="bg-primary" />
+                                </Link>
+                                <SimpleFeatureButton
+                                    text="Eliminar publicación"
+                                    color="bg-error"
                                     onClick={() => handleListingDelete(listing._id)}
-                                    className="text-red-700 uppercase"
-                                >
-                                    Delete
-                                </button>
+                                    IconComponent={MdOutlineDeleteOutline}
+                                />
                                 <Link to={`/update-listing/${listing._id}`}>
-                                    <button className="text-green-700 uppercase">Edit</button>
+                                    <SimpleFeatureButton text="Editar publicación" IconComponent={FiEdit} color="bg-success" />
                                 </Link>
                             </div>
                         </div>
