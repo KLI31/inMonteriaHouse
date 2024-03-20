@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { signInStart, signInFail, signInSuccess } from "../redux/user/userSlice";
 import AuthGoogleButton from "../components/AuthGoogleButton";
+import toast, { Toaster } from "react-hot-toast";
 
 
 const SignIn = () => {
     const [formData, setFormData] = useState({});
-    const { error, loading } = useSelector((state) => state.user);
+    const { loading } = useSelector((state) => state.user);
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -33,10 +34,16 @@ const SignIn = () => {
             console.log(data);
             if (data.success === false) {
                 dispatch(signInFail(data.message));
+                toast.error("No se pudo iniciar sesion, Usuario o contraseña incorrectos")
                 return;
             }
+            toast.success("Sesion iniciada correctamente", {
+                duration: 1000,
+            });
             dispatch(signInSuccess(data));
-            navigate('/');
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
         } catch (error) {
             dispatch(signInFail(error.message));
         }
@@ -44,6 +51,7 @@ const SignIn = () => {
 
     return (
         <div className="flex justify-center items-center h-screen">
+            <Toaster />
             <div className="w-1/2 h-screen">
                 <img className="object-cover w-full h-full" src={image} alt="Signup" />
             </div>
@@ -57,7 +65,7 @@ const SignIn = () => {
                 <form onSubmit={handleSubmit} className="p-4">
                     <div className="mb-9 mt-9">
                         <label
-                            className="block text-gray-400 text-sm font-semibold mb-2"
+                            className="block text-primary text-sm font-semibold mb-2"
                             htmlFor="email"
                         >
                             Email
@@ -115,7 +123,7 @@ const SignIn = () => {
                         </span>
                     </Link>
                 </div>
-                {error && <p className='text-error mt-5'>{error}</p>}
+
             </div>
         </div>
     )

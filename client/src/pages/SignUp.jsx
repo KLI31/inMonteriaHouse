@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import image from "../assets/image-signup.webp";
+import toast, { Toaster } from "react-hot-toast";
 
 const SignUp = () => {
     const [formData, setFormData] = useState({});
@@ -25,23 +26,30 @@ const SignUp = () => {
                 body: JSON.stringify(formData),
             });
             const data = await res.json();
-            console.log(data);
             if (data.success === false) {
                 setLoading(false);
+                toast.error(data.message);
                 setError(data.message);
                 return;
             }
             setLoading(false);
             setError(null);
-            navigate('/sign-in');
+            toast.success("Te has registrado perfectamente", {
+                duration: 1000,
+            });
+            setTimeout(() => {
+                navigate('/sign-in');
+            }, 1000);
         } catch (error) {
             setLoading(false);
+            toast.error("No se pudo registrar, intentalo de nuevo", error.message);
             setError(error.message);
         }
     };
 
     return (
         <div className="flex justify-center items-center h-screen">
+            <Toaster />
             <div className="w-1/2 h-screen">
                 <img className="object-cover w-full h-full" src={image} alt="Signup" />
             </div>
@@ -52,7 +60,7 @@ const SignUp = () => {
                 <span className="font-semibold text-neutral">
                     El hogar perfecto para tu comodidad
                 </span>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="p-4">
                     <div className="mb-4 mt-8">
                         <label
                             className="block text-primary text-sm font-bold mb-2"
@@ -61,7 +69,7 @@ const SignUp = () => {
                             Usuario
                         </label>
                         <input
-                            className="shadow appearance-none border rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-secondary focus:shadow-outline"
+                            className="shadow appearance-none border rounded w-9/12 py-4 px-4 text-gray-700 leading-tight focus:outline-secondary focus:shadow-outline"
                             id="username"
                             type="text"
                             placeholder="Ingresa tu nombre de usuario"
@@ -76,7 +84,7 @@ const SignUp = () => {
                             Email
                         </label>
                         <input
-                            className="shadow appearance-none border rounded w-full py-4 px-4 text-gray-700 leading-tight focus:outline-secondary focus:shadow-outline"
+                            className="shadow appearance-none border rounded w-9/12 py-4 px-4 text-gray-700 leading-tight focus:outline-secondary focus:shadow-outline"
                             id="email"
                             type="email"
                             placeholder="Ingresa tu email"
@@ -91,7 +99,7 @@ const SignUp = () => {
                             Contraseña
                         </label>
                         <input
-                            className="shadow appearance-none border rounded w-full py-4 px-4 text-gray-700 mb-3 leading-tight focus:outline-secondary focus:shadow-outline"
+                            className="shadow appearance-none border rounded w-9/12 py-4 px-4 text-gray-700 leading-tight focus:outline-secondary focus:shadow-outline"
                             id="password"
                             type="password"
                             placeholder="Ingresa una contraseña"
@@ -101,7 +109,7 @@ const SignUp = () => {
                     <div className="flex items-center justify-center mt-5 ">
                         <button
                             disabled={loading}
-                            className="bg-primary btn hover:bg-secondary hover:-translate-y-1 text-white font-bold py-4 px-5 w-full "
+                            className="bg-primary btn btn-lg hover:bg-secondary hover:-translate-y-1 text-white font-bold  w-6/12 text-xl text-center"
                         >
                             {loading ? "Cargando..." : "Registrarse"}
                         </button>
@@ -117,7 +125,7 @@ const SignUp = () => {
                         </span>
                     </Link>
                 </div>
-                {error && <p className='text-error mt-5'>{error}</p>}
+                {error && <p className='text-error mt-5'>El valor de los inputs es necesario</p>}
             </div>
         </div>
     );
