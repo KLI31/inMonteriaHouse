@@ -5,6 +5,7 @@ import userRoute from "./routes/user.js";
 import authRoute from "./routes/auth.js";
 import cookieParser from "cookie-parser";
 import listingRoute from "./routes/listing.js";
+import path from "path";
 
 const __dirname = path.resolve();
 const app = express();
