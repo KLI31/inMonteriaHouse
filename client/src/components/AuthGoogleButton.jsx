@@ -3,6 +3,7 @@ import { app } from "../firebase";
 import { useDispatch } from "react-redux";
 import { signInSuccess } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 
 const AuthGoogleBoton = () => {
@@ -28,11 +29,16 @@ const AuthGoogleBoton = () => {
                 }),
             });
             const data = await res.json();
-            console.log(data);
+            toast.success("Bienvenido, te has registrado con Google", {
+                duration: 1000,
+            });
             dispatch(signInSuccess(data));
-            navigate('/');
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
         } catch (error) {
             console.log('could not sign in with google', error);
+            toast.error("No se pudo iniciar sesion con Google",)
         }
     };
 
