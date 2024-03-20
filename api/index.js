@@ -5,6 +5,8 @@ import userRoute from "./routes/user.js";
 import authRoute from "./routes/auth.js";
 import cookieParser from "cookie-parser";
 import listingRoute from "./routes/listing.js";
+
+const __dirname = path.resolve();
 const app = express();
 dotenv.config();
 
@@ -27,6 +29,11 @@ app.listen(5000, () => {
 app.use("/api/user", userRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/listing", listingRoute);
+app.use(express.static(path.join(__dirname, "/client/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
