@@ -250,7 +250,7 @@ export default function Profile() {
             </div>
 
             <p className="text-red-700 mt-5">{error ? error : ""}</p>
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center p-3">
                 <SimpleFeatureButton
                     text="Mostrar tus publicaciones"
                     color="bg-primary"
