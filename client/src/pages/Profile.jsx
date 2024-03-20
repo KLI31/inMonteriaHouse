@@ -170,7 +170,7 @@ export default function Profile() {
 
 
     return (
-        <div className="p-3 max-w-lg mx-auto">
+        <div className="p-4 max-w-lg mx-auto min-h-screen flex flex-col">
             <Toaster />
             <h1 className="text-4xl font-bold text-center my-7">Mi Perfil</h1>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -250,7 +250,7 @@ export default function Profile() {
             </div>
 
             <p className="text-red-700 mt-5">{error ? error : ""}</p>
-            <div className="flex items-center justify-center p-3">
+            <div className="flex items-center justify-center">
                 <SimpleFeatureButton
                     text="Mostrar tus publicaciones"
                     color="bg-primary"
