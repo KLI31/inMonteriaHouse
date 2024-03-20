@@ -105,7 +105,7 @@ const Listing = () => {
                                                     style: "currency",
                                                     currency: "COP",
                                                 })}`
-                                                : `${listing.regularPrice.toLocaleString("es-CO", {
+                                                : `Precio total: ${listing.regularPrice.toLocaleString("es-CO", {
                                                     style: "currency",
                                                     currency: "COP",
                                                 })}${listing.type === "rent" ? " / Mensual" : ""}`
@@ -121,7 +121,7 @@ const Listing = () => {
                                 )}
                             </div>
                             <div className="bg-white text-black p-4 rounded-lg shadow mt-4">
-                                <span className="text-secondary text-sm">El descuento se aplica automaticamente</span>
+                                {listing.offer ? <span className="text-secondary text-sm">El descuento se aplica automaticamente</span> : ""}
                                 <h3 className="font-semibold text-xl mb-2">Descripción</h3>
                                 <p className="text-gray-800 text-justify whitespace-normal break-words">
                                     {listing.description}
