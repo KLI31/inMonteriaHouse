@@ -9,29 +9,50 @@ import Footer from "../components/Footer";
 import { TbStars } from "react-icons/tb";
 import { motion } from "framer-motion";
 
+/**
+ * Objeto de animación para efectos de fade-in usando Framer Motion.
+ * Define los estados inicial y visible para aplicar una transición de opacidad y posición.
+ * @type {Object}
+ */
 const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
 };
 
+/**
+ * Componente principal de la página de inicio.
+ * Este componente representa la página principal de la aplicación, 
+ * mostrando diversas secciones como listados de propiedades, información,
+ * testimonios y noticias.
+ * @returns {JSX.Element} Elemento JSX que representa la página de inicio.
+ */
 const Home = () => {
+    // Estados para almacenar las listas de propiedades de ofertas, ventas y alquileres
     const [offerListings, setOfferListings] = useState([]);
     const [saleListings, setSaleListings] = useState([]);
     const [rentListings, setRentListings] = useState([]);
 
+    /**
+     * Efecto que se ejecuta al montar el componente para obtener las listas de propiedades.
+     * Realiza múltiples solicitudes fetch en paralelo y actualiza los estados correspondientes.
+     * Utiliza async/await para manejar las operaciones asíncronas.
+     */
     useEffect(() => {
         const fetchListings = async () => {
             try {
+                // Realiza solicitudes en paralelo para obtener diferentes tipos de listados
                 const [offerRes, rentRes, saleRes] = await Promise.all([
                     fetch("/api/listing/get?offer=true&limit=4"),
                     fetch("/api/listing/get?type=rent&limit=4"),
                     fetch("/api/listing/get?type=sale&limit=4"),
                 ]);
+                // Convierte las respuestas a JSON
                 const [offerData, rentData, saleData] = await Promise.all([
                     offerRes.json(),
                     rentRes.json(),
                     saleRes.json(),
                 ]);
+                // Actualiza los estados con los datos obtenidos
                 setOfferListings(offerData);
                 setRentListings(rentData);
                 setSaleListings(saleData);
@@ -41,8 +62,10 @@ const Home = () => {
         };
         fetchListings();
     }, []);
+
     return (
         <div>
+            {/* Sección principal con animación de fade-in */}
             <motion.main
                 initial="hidden"
                 whileInView="visible"
@@ -50,6 +73,7 @@ const Home = () => {
                 variants={fadeIn}
                 className="relative"
             >
+                {/* Imagen de fondo */}
                 <div className="absolute inset-0 z-0">
                     <img
                         src="https://images.pexels.com/photos/950058/pexels-photo-950058.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
@@ -58,16 +82,19 @@ const Home = () => {
                         loading="lazy"
                     />
                 </div>
+                {/* Capa de superposición oscura para mejorar la legibilidad del contenido */}
                 <div className="absolute inset-0 bg-black opacity-50" />
                 <motion.div variants={fadeIn} className="relative z-10">
+                    {/* Componente de la barra de navegación */}
                     <Navbar />
                     <div className="flex items-center mx-auto max-w-7xl h-screen">
                         <main className="pt-6 pb-12 md:pb-24 lg:pb-32">
                             <div className="container px-4 md:px-6">
-                                <div className="flex flex-col items-center space-y-4 ">
+                                <div className="flex flex-col items-center space-y-4">
                                     <div className="space-y-7">
+                                        {/* Título y descripción principal de la página */}
                                         <h1 className="text-8xl text-white font-bold tracking-tighter sm:text-6xl">
-                                            Tu Hogar Ideal te esta esperando
+                                            Tu Hogar Ideal te está esperando
                                         </h1>
                                         <p className="max-w-[700px] text-white md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-white">
                                             Experimenta la combinación perfecta entre la vida moderna
@@ -77,6 +104,7 @@ const Home = () => {
                                             conectar con tus anfitriones y explorar la rica cultura
                                             local.
                                         </p>
+                                        {/* Barra de búsqueda para encontrar propiedades */}
                                         <div className="w-1/2">
                                             <InputSearch />
                                         </div>
@@ -88,6 +116,7 @@ const Home = () => {
                 </motion.div>
             </motion.main>
 
+            {/* Sección de listados de propiedades */}
             <motion.section
                 initial="hidden"
                 whileInView="visible"
@@ -102,6 +131,7 @@ const Home = () => {
                     Con modernas comodidades para una experiencia de vida excepcional.
                 </p>
                 <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10">
+                    {/* Listados de ofertas recientes */}
                     {offerListings && offerListings.length > 0 && (
                         <div className="">
                             <div className="my-3">
@@ -112,7 +142,7 @@ const Home = () => {
                                     className="text-sm text-neutral hover:underline hover:text-primary"
                                     to={"/search?offer=true"}
                                 >
-                                    Mostrar mas ofertas
+                                    Mostrar más ofertas
                                 </Link>
                             </div>
                             <div className="flex flex-wrap gap-2">
@@ -122,6 +152,7 @@ const Home = () => {
                             </div>
                         </div>
                     )}
+                    {/* Listados de propiedades en renta recientes */}
                     {rentListings && rentListings.length > 0 && (
                         <div className="">
                             <div className="my-3">
@@ -132,7 +163,7 @@ const Home = () => {
                                     className="text-sm text-neutral hover:underline hover:text-primary"
                                     to={"/search?type=rent"}
                                 >
-                                    Mostar mas ofertas en renta
+                                    Mostrar más ofertas en renta
                                 </Link>
                             </div>
                             <div className="flex flex-wrap gap-4">
@@ -142,6 +173,7 @@ const Home = () => {
                             </div>
                         </div>
                     )}
+                    {/* Listados de propiedades en venta recientes */}
                     {saleListings && saleListings.length > 0 && (
                         <div className="">
                             <div className="my-3">
@@ -152,7 +184,7 @@ const Home = () => {
                                     className="text-sm text-neutral hover:underline hover:text-primary"
                                     to={"/search?type=sale"}
                                 >
-                                    Mostrar mas ofertas en venta
+                                    Mostrar más ofertas en venta
                                 </Link>
                             </div>
                             <div className="flex flex-wrap gap-4">
@@ -165,12 +197,13 @@ const Home = () => {
                 </div>
             </motion.section>
 
+            {/* Sección de información adicional sobre los servicios */}
             <motion.section
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeIn}
-                className="mx-auto max-w-6xl mt-20 "
+                className="mx-auto max-w-6xl mt-20"
             >
                 <h1 className="text-secondary text-3xl font-semibold">
                     Te acompañamos en cada paso
@@ -194,7 +227,8 @@ const Home = () => {
                     />
                 </div>
             </motion.section>
-
+            Ñ
+            {/* Sección de testimonios de usuarios */}
             <motion.section
                 initial="hidden"
                 whileInView="visible"
@@ -213,6 +247,7 @@ const Home = () => {
                 </div>
             </motion.section>
 
+            {/* Sección de noticias */}
             <motion.section
                 initial="hidden"
                 whileInView="visible"
@@ -221,7 +256,7 @@ const Home = () => {
                 className="mx-auto max-w-6xl mt-20"
             >
                 <h1 className="text-secondary text-3xl font-semibold">
-                    Nuestras ultimas noticias
+                    Nuestras últimas noticias
                 </h1>
                 <p className="mt-2 max-w-2xl text-xl text-gray-500">
                     Mantente informado con nuestras últimas noticias.
@@ -244,6 +279,7 @@ const Home = () => {
                     />
                 </div>
             </motion.section>
+            {/* Pie de página */}
             <Footer />
         </div>
     );
