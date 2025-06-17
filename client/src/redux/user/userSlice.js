@@ -6,6 +6,31 @@ const initialState = {
   loading: false,
 };
 
+// InitialState for User and Seller
+
+/*
+  const initialState = {
+    currentUser: null,
+    error: null,
+    loading: false,
+    role: null, en este caso se sabra si es vendedor o usuario normal
+  }
+
+
+
+  const userSlice = createSlice({
+    name  = "user",
+    initialState,
+    reducers: {
+      setUserRole: (state, action) => {
+        state.role = action.payload;  Se toamra el rol del usuario
+      },
+      }
+     }
+  })
+
+*/
+
 const userSlice = createSlice({
   name: "user",
   initialState,
