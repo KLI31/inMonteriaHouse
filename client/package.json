@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@cloudinary/url-gen": "^1.21.0",
     "@material-tailwind/react": "^2.1.9",
     "@reduxjs/toolkit": "^2.2.1",
+    "cloudinary-react": "^1.8.1",
     "dotenv": "^16.4.5",
     "firebase": "^10.8.0",
     "framer-motion": "^11.0.14",
